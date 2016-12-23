@@ -6,22 +6,29 @@
 import psycopg2
 
 
+
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
 
+conn = connect()
+curs = conn.cursor()
 
 def deleteMatches():
     """Remove all the match records from the database."""
-
+    curs.execute('DELETE FROM matches CASCADE;')
+    conn.commit()
 
 def deletePlayers():
     """Remove all the player records from the database."""
-
+    curs.execute('DELETE FROM players CASCADE;')
+    conn.commit()
 
 def countPlayers():
     """Returns the number of players currently registered."""
-
+    curs.execute('SELECT COUNT(*) FROM players;')
+    result = curs.fetchone()[0]
+    return result
 
 def registerPlayer(name):
     """Adds a player to the tournament database.
@@ -32,7 +39,8 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
-
+    curs.execute('INSERT INTO players(name) VALUES (%s)', (name,))
+    conn.commit()
 
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
