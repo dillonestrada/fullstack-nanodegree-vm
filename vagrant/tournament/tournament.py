@@ -17,6 +17,7 @@ curs = conn.cursor()
 def deleteMatches():
     """Remove all the match records from the database."""
     curs.execute('DELETE FROM matches CASCADE;')
+    curs.execute('UPDATE players SET wins = 0, matches = 0')
     conn.commit()
 
 def deletePlayers():
@@ -55,6 +56,9 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    curs.execute('SELECT * FROM players ORDER BY wins desc;')
+    result = curs.fetchall()
+    return result
 
 
 def reportMatch(winner, loser):
@@ -64,7 +68,10 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
- 
+    curs.execute('INSERT INTO matches(winner, loser) VALUES (%s, %s)', (winner, loser))
+    curs.execute('UPDATE players SET wins = wins + 1 WHERE players.id = %s', (winner,))
+    curs.execute('UPDATE players SET matches = matches + 1 WHERE players.id = %s OR players.id = %s', (winner, loser))
+    conn.commit()
  
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -82,4 +89,17 @@ def swissPairings():
         name2: the second player's name
     """
 
+    if(countPlayers() % 2 == 0):
+        standings = playerStandings()
+        pairingList = []
+        i = 0
+        result = curs.fetchall()
+        while(i < len(standings)):
+            tup1 = standings[i]
+            tup2 = standings[i + 1]
 
+            pairingList.append(tuple((tup1[0], tup1[1], tup2[0], tup2[1])))
+
+            i += 2
+
+    return pairingList

@@ -15,13 +15,12 @@ CREATE DATABASE tournament;
 DROP TABLE IF EXISTS players CASCADE;
 
 CREATE TABLE players(
-	id serial primary key, name text
+	id serial primary key, name text, wins integer DEFAULT 0, matches integer DEFAULT 0
 );
 
 -- Drop previous table so that there are no errors when creating
 DROP TABLE IF EXISTS matches CASCADE;
 
 CREATE TABLE matches(
-	id serial primary key, player1_id serial references players(id),
-    player2_id serial references players(id)
+	id serial primary key, winner integer references players(id), loser integer references players(id)
 );
