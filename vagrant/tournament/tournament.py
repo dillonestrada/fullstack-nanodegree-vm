@@ -89,11 +89,14 @@ def swissPairings():
         name2: the second player's name
     """
 
+    # Makes sure there is an even number of players to create the pairings with.
     if(countPlayers() % 2 == 0):
         standings = playerStandings()
         pairingList = []
         i = 0
         result = curs.fetchall()
+
+        # Creates the list of tuples by looping through the standings
         while(i < len(standings)):
             tup1 = standings[i]
             tup2 = standings[i + 1]
